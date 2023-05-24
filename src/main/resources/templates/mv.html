@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>评论页面</title>
+</head>
+<script src=""></script>
+<style>
+    .mv{
+        background: #333333;
+        height: 800px;
+        width: 100%;
+        /*溢出隐藏*/
+        overflow: hidden;
+    }
+    .mv_play{
+        height: 700px;
+        width: 1400px;
+        margin: 50px auto;
+    }
+    .mv_play video{
+        height: 700px;
+        /*background: #e84c13;*/
+        width: 1400px;
+        margin: auto;
+    }
+
+    .mv_comment{
+        height: 600px;
+        width: 100%;
+    }
+    .mv_comment span{
+        margin-left: 300px;
+        font-size: 35px;
+        line-height: 40px;
+        color: #6a6149;
+    }
+
+    .comment{
+        width: 100%;
+        margin-left: 300px;
+        margin-top: 15px;
+        /*display: flex;*/
+    }
+
+    .left img{
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+    }
+
+    .right{
+        width: 80%;
+        margin-left: 15px;
+    }
+
+    .nickName span{
+        font-size: 14px;
+        line-height: 22px;
+        margin-left: 10px;
+        font-weight: 600;
+    }
+    .content span{
+        font-size: 14px;
+        line-height: 26px;
+        margin-left: 10px;
+    }
+    .time span{
+        font-size: 14px;
+        line-height: 14px;
+        opacity: 0.5;
+        margin-left: 10px;
+    }
+</style>
+
+<script src="js/jquery-1.7.2.js"></script>
+
+
+<body>
+
+
+    <!--MV播放区域-->
+    <div class="mv">
+        <!--MV-->
+    </div>
+    <!--评论区域-->
+    <div class="mv_comment">
+        <span>热门评论</span>
+        <div class="comment">
+<!--            &lt;!&ndash;左边&ndash;&gt;-->
+<!--            <div class="left">-->
+<!--                <img src="http://img1.kuwo.cn/star/userhead/3/37/1663408507319_573876703s.jpg">-->
+<!--            </div>-->
+<!--            &lt;!&ndash;右边&ndash;&gt;-->
+<!--            <div class="right">-->
+<!--                &lt;!&ndash;上&ndash;&gt;-->
+<!--                <div class="nickName">-->
+<!--                    <span>kw1628938297814</span>-->
+<!--                </div>-->
+<!--                &lt;!&ndash;中&ndash;&gt;-->
+<!--                <div class="content">-->
+<!--                    <span>未写完的诗、没有结局的恋情、被惊醒的梦</span>-->
+<!--                </div>-->
+<!--                &lt;!&ndash;下&ndash;&gt;-->
+<!--                <div class="time">-->
+<!--                    <span>2022-07-13 07:28:41</span>-->
+<!--                </div>-->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function(){
+            var url = location.href;
+            //切割
+            var rid = url.split("=")[1];
+            $.post("/getMv",{"rid":rid},function(result){
+                var my_mv = "\t\t<div class=\"mv_play\">\n" +
+                    "            <video autoplay controls src=\""+result+"\"></video>\n" +
+                    "        </div>"
+                $(".mv").append(my_mv)
+            })
+
+            $.post("/gethotComment",{"rid":rid},function (result){
+                for (i=0;i<result.length;i++) {
+                    var comment =
+                        "            <div class=\"left\">\n" +
+                        "                <img src=\""+result[i].u_pic+"\">\n" +
+                        "            </div>\n" +
+                        "            <!--右边-->\n" +
+                        "            <div class=\"right\">\n" +
+                        "                <!--上-->\n" +
+                        "                <div class=\"nickName\">\n" +
+                        "                    <span>"+result[i].u_name+"</span>\n" +
+                        "                </div>\n" +
+                        "                <!--中-->\n" +
+                        "                <div class=\"content\">\n" +
+                        "                    <span>"+result[i].msg+"</span>\n" +
+                        "                </div>\n" +
+                        "                <!--下-->\n" +
+                        "                <div class=\"time\">\n" +
+                        "                    <span>"+result[i].time+"</span>\n" +
+                        "                </div>\n" +
+                        "            </div>"
+
+                    //将最热评论追加到newComment中
+                    $(".comment").append(comment);
+                }
+            })
+        }
+    </script>
+
+
+</body>
+</html>

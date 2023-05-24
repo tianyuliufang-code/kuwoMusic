@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>我的音乐网</title>
+    <link href="css/style.css" rel="stylesheet">
+    <script src="js/jquery-1.7.2.js"></script>
+    <script type="text/javascript">
+        var index = 1;
+        window.setInterval(function () {
+            var imgObj = document.getElementById("binnerImg");
+            if(index == 6){
+                index = 1;
+            }
+            imgObj.src = "img/"+index+".jpg";
+            index ++ ;
+        },2000);
+    </script>
+    <style>
+        #lyric {
+            height: 1200px;
+            overflow: hidden;
+        }
+        #lyric p{
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div id="content">
+    <div id="div-top">
+        <div id="top-left">
+            ♫ MyPlayer
+        </div>
+        <div id="top-right">
+            <input id="keyWord" placeholder="搜索歌手、歌名、专辑"/>
+            <button id="search">搜索</button>
+        </div>
+    </div>
+    <div id="div-main">
+        <div id="banner">
+            <img id="binnerImg" src="img/1.jpg" width="1000px">
+        </div>
+        <div>
+            <marquee id="mq"></marquee>
+        </div>
+        <div id="main-left">
+            <table id="tb" width="100%" cellpadding="4px">
+                <tr>
+                    <th>序号</th>
+                    <th>歌曲</th>
+                    <th>歌手</th>
+                    <th>专辑</th>
+                    <th>时长</th>
+                    <th>操作</th>
+                </tr>
+
+            </table>
+        </div>
+        <div id="main-right">
+            <img id="image" src="img/largePic.jpg" width="300px"/><br/>
+            <audio id="bfq" src="music/154364109.mp3" controls></audio>
+<!--            展示歌词区域-->
+            <div id="lyric">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    //jquery 的入口函数
+    $(function(){
+        //给我们的搜索按钮点击绑定事件
+        $("#search").click(function(){
+            //
+            $("#tb tr td").remove();
+            $.post("/searchMusic",{"key":$("#keyWord").val()},function(result){
+                // alert(result.length);//30
+                for(var i = 0; i < result.length;i++){
+                    //拼接
+                    var trtd = "<tr>\n" +
+                        "                    <td>"+(i+1)+"</td>\n" +
+                        "                    <td>"+(result[i].name)+"</td>\n" +
+                        "                    <td>"+(result[i].artist)+"</td>\n" +
+                        "                    <td>"+(result[i].album)+"</td>\n" +
+                        "                    <td>"+(result[i].songTimeMinutes)+"</td>\n" +
+                        "                    <td>\n" +
+                        "                        <img src=\"/img/play.jpg\" onclick=\"playMusic(\'"+result[i].rid+"'\,\'"+result[i].name+"'\,\'"+result[i].pic+"'\)\" style=\"width:32px;height: 32px\">\n" +
+                        "                        <img src=\"/img/down.jpg\" onclick=\"downMusic(\'"+result[i].rid+"'\,\'"+result[i].artist+"'\,\'"+result[i].name+"'\)\"  style=\"width:32px;height: 32px\">\n" +
+                        "                        <img src=\"/img/1.png\" onclick='getComment("+result[i].rid+")' style=\"width:32px;height: 32px\">\n" +
+                        "                        <img src=\"/img/MV.png\" onclick='playMv("+result[i].rid+")' style=\"width: 32px;height: 32px\">\n" +
+                        "                    </td>\n"+
+                        "                   </tr>";
+                     $("#tb").append(trtd);
+                }
+            })
+        })
+    })
+
+    function playMusic(rid, name, pic) {
+        //将原先的歌词进行清空处理
+        $("#lyric p").remove();
+        $.post("/playMusic", {"rid": rid}, function (result) {
+            $("#bfq").attr("src", result)
+            $("#bfq").get(0).play();
+        })
+        //将歌曲的封面照片替换
+        $('#image').attr("src", pic);
+        //跑马灯效果
+        $('#mq').html("正在播放:" + name);
+
+        //加载歌词信息
+        $.post("/getLyric", {"rid": rid}, function (result) {
+            //回调函数result就是歌词信息
+            for (var i = 0; i < result.length; i++) {
+                var p = "<p>" + result[i].lineLyric + "</p>"
+                $("#lyric").append(p);
+            }
+        })
+    }
+    function downMusic(rid,artist,name){
+        $.post("/downMusic",{"rid":rid,"artist":artist,"name":name},function(result){
+            alert(result);
+        })
+    }
+
+    //
+    function getComment(rid){
+        location.href = "http://localhost:8080/comment?rid="+rid;
+    }
+
+    //跳转mv网址
+    function playMv(rid){
+        //调整页面
+        location.href= "http://localhost:8080/mv?rid="+rid;
+    }
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>评论页面</title>
+</head>
+<style>
+    .comment{
+        width: 1000px;
+        height: 1000px;
+        margin: 0 auto;
+        /*background: #e84c13;*/
+        /*弹性盒子布局*/
+        display: flex;
+    }
+    /*左侧区域划分*/
+    .left{
+        width: 400px;
+        height: 600px;
+        /*background: black;*/
+    }
+    /*右侧区域划分*/
+    .right{
+        width: 600px;
+        height: 1000px;
+        /*background: blueviolet;*/
+    }
+
+    /*左侧上区域*/
+    .pic{
+        width: 300px;
+        height: 300px;
+        margin: 50px;
+        /*background: deeppink;*/
+    }
+    .pic img{
+        width: 300px;
+        height: 300px;
+    }
+    /*左侧下区域*/
+    .msg{
+        width: 300px;
+        height: 200px;
+        margin: 50px;
+        /*background: #e84c13;*/
+    }
+    .msg_top{
+        width: 300px;
+        height: 80px;
+        /*background: #33b312;*/
+        display: flex;
+    }
+    .msg_middle{
+        width: 300px;
+        height: 50px;
+        /*background: deeppink;*/
+    }
+    .msg_bottom{
+        width: 300px;
+        height: 70px;
+        /*background: blue;*/
+    }
+    .msg_top p{
+        font-size: 25px;
+        margin-left: 20px;
+
+    }
+    .msg_top img{
+        width: 50px;
+        height: 50px;
+        margin-left: 50px;
+    }
+    .msg_middle span{
+        font-size: 20px;
+        color: #666;
+        margin-left: 20px;
+    }
+    .msg_bottom span{
+        font-size: 20px;
+        color: #666;
+        margin-left: 20px;
+        line-height: 50px;
+    }
+
+    /*设置右侧的评论*/
+    .right span{
+        font-size: 30px;
+        font-weight: 600;
+        color: #333;
+    }
+    /*左侧用户头像*/
+    .upic{
+        width: 60px;
+        height: 60px;
+        margin-left: 10px;
+    }
+    .upic img{
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+    }
+    /*用户昵称*/
+    .nickName span{
+        font-size: 14px;
+        line-height: 22px;
+        color: #333;
+    }
+
+    .left_comment{
+        margin-left: 20px;
+    }
+    /*评论信息*/
+    .hot_comment span{
+        font-size: 12px;
+        line-height: 20px;
+        color: #6a6149;
+    }
+    /*时间*/
+    .time span{
+        font-size: 14px;
+        opacity: 0.5;
+        line-height: 17px;
+    }
+</style>
+<script src="js/jquery-1.7.2.js"></script>
+
+
+<body>
+
+    <div class="comment">
+        <!--左侧区域-->
+        <div class="left">
+			<div class="pic">
+                <img src="https://img2.kuwo.cn/star/albumcover/500/64/96/2266534336.jpg">
+            </div>
+            <div class="msg">
+                <div class="msg_top">
+					<p>晴天</p>
+					<img onclick="playMv()" src="img/MV.png">
+                </div>
+                <div class="msg_middle">
+					<span>周杰伦</span>
+                </div>
+                <div class="msg_bottom">
+					<span>专辑: 叶惠美</span>
+                </div>
+            </div>
+        </div>
+
+
+        <!--右侧区域-->
+        <div class="right">
+            <SPAN>热门评论</SPAN>
+            <!--热评-->
+            <div class="hotComment">
+            </div>
+            <SPAN>最新评论</SPAN>
+            <!--最新评论-->
+            <div class="newComment">
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        var rid;
+        //页面一加载就获取rid
+        window.onload = function(){
+            var url = location.href
+            rid = url.split("=")[1];
+            // http://localhost:8080/comment?rid="+rid;
+            //据rid获取最新评论
+            $.post("/newComment",{"rid":rid},function(result){
+                //回调函数result
+                for(var i = 0; i < result.length;i++){
+                    var comment = "\t\t\t\t<div class=\"upic\">\n" +
+                        "                    <img src=\""+result[i].u_pic+"\">\n" +
+                        "                </div>\n" +
+                        "                <div class=\"nickName\">\n" +
+                        "\t\t\t\t\t<span>"+result[i].u_name+"</span>\n" +
+                        "                </div>\n" +
+                        "                <div class=\"hot_comment\">\n" +
+                        "\t\t\t\t\t<span>"+result[i].msg+"</span>\n" +
+                        "                </div>\n" +
+                        "                <div class=\"time\">\n" +
+                        "\t\t\t\t\t<span>"+result[i].time+"</span>\n" +
+                        "                </div>\n";
+                    $(".newComment").append(comment);
+                }
+            })
+            //最热评论
+            $.post("/hotComment",{"rid":rid},function(result) {
+                //回调函数result
+                for (var i = 0; i < result.length; i++) {
+                    var comment = "\t\t\t\t<div class=\"upic\">\n" +
+                        "                    <img src=\"" + result[i].u_pic + "\">\n" +
+                        "                </div>\n" +
+                        "                <div class=\"nickName\">\n" +
+                        "\t\t\t\t\t<span>" + result[i].u_name + "</span>\n" +
+                        "                </div>\n" +
+                        "                <div class=\"hot_comment\">\n" +
+                        "\t\t\t\t\t<span>" + result[i].u_msg + "</span>\n" +
+                        "                </div>\n" +
+                        "                <div class=\"time\">\n" +
+                        "\t\t\t\t\t<span>" + result[i].time + "</span>\n" +
+                        "                </div>";
+                    $(".hotComment").append(comment);
+                }
+            })
+
+        }
+        function playMv(){
+            //跳转
+            location.href =  "http://localhost:8080/mv?rid="+rid;
+        }
+
+    </script>
+
+</body>
+</html>
